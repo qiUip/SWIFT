@@ -49,7 +49,7 @@ check_PROGRAMS = testGreetings testReading testTimeIntegration testKernelLongGra
 		 test27cellsStars test27cellsStars_subset testCooling testComovingCooling testFeedback \
 		 testHashmap testAtomic testHydroMPIrules testGravitySpeed testMeshGravityRebuildCheck \
 		 testNeutrinoCosmology \
-		 testNeutrinoFermiDirac testLog testTimeline
+		 testNeutrinoFermiDirac testLog testTimeline test27GravityCells
 
 # Rebuild tests when SWIFT is updated.
 $(check_PROGRAMS): ../src/.libs/libswiftsim.a
@@ -143,6 +143,8 @@ testErfc_SOURCES = testErfc.c
 testGravityDerivatives_SOURCES = testGravityDerivatives.c
 
 testGravitySpeed_SOURCES = testGravitySpeed.c
+
+test27GravityCells_SOURCES = test27GravityCells.c
 
 testPotentialSelf_SOURCES = testPotentialSelf.c
 

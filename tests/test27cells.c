@@ -28,6 +28,7 @@
 #include <unistd.h>
 
 /* Local headers. */
+#include "likwid_wrapper.h"
 #include "swift.h"
 
 #if defined(WITH_VECTORIZATION)
@@ -540,11 +541,17 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < 27; i++) timings[i] = 0;
 
   ticks time = 0;
+
+  swift_likwid_marker_init();
+  swift_likwid_marker_register("stencil_full");
+  swift_likwid_marker_register("stencil_kernel");
+
   for (size_t i = 0; i < runs; ++i) {
     /* Zero the fields */
     for (int j = 0; j < 27; ++j) zero_particle_fields(cells[j]);
 
     const ticks tic = getticks();
+    swift_likwid_marker_start_region("stencil_full");
 
 #ifdef WITH_VECTORIZATION
     runner.ci_cache.count = 0;
@@ -564,6 +571,8 @@ int main(int argc, char *argv[]) {
         ++count;
       }
 #endif
+
+    swift_likwid_marker_start_region("stencil_kernel");
 
     /* Run all the pairs */
     for (int j = 0; j < 27; ++j) {
@@ -593,6 +602,9 @@ int main(int argc, char *argv[]) {
 
     timings[13] += getticks() - self_tic;
 
+    swift_likwid_marker_stop_region("stencil_kernel");
+    swift_likwid_marker_stop_region("stencil_full");
+
     const ticks toc = getticks();
     time += toc - tic;
 
@@ -606,6 +618,8 @@ int main(int argc, char *argv[]) {
       dump_particle_fields(outputFileName, main_cell, cells);
     }
   }
+
+  swift_likwid_marker_close();
 
   /* Output timing */
   ticks corner_time = timings[0] + timings[2] + timings[6] + timings[8] +

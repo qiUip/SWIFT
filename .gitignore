@@ -184,6 +184,7 @@ tests/testCSDS
 tests/benchmarkInteractions
 tests/testGravityDerivatives
 tests/testGravitySpeed
+tests/test27GravityCells
 tests/testPotentialSelf
 tests/testPotentialPair
 tests/testEOS

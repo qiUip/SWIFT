@@ -26,6 +26,7 @@
 #include <unistd.h>
 
 /* Local headers. */
+#include "likwid_wrapper.h"
 #include "runner_doiact_grav.h"
 #include "swift.h"
 
@@ -195,7 +196,18 @@ int main(int argc, char *argv[]) {
   /********
    * Symmetric non-periodic M2L
    ********/
+  swift_likwid_marker_init();
+  swift_likwid_marker_register("m2l_sym_nonperiodic");
+  swift_likwid_marker_register("m2l_sym_periodic");
+  swift_likwid_marker_register("m2l_nonsym_nonperiodic");
+  swift_likwid_marker_register("m2l_nonsym_periodic");
+  swift_likwid_marker_register("m2p_nonperiodic");
+  swift_likwid_marker_register("m2p_periodic");
+  swift_likwid_marker_register("pp_no_mpole");
+  swift_likwid_marker_register("pp_mpole");
+
   ticks tic = getticks();
+  swift_likwid_marker_start_region("m2l_sym_nonperiodic");
   for (int n = 0; n < num_M2L_runs; ++n) {
 
     gravity_M2L_symmetric(&tensors_i[n].pot,     //
@@ -206,6 +218,7 @@ int main(int argc, char *argv[]) {
                           tensors_j[n].CoM,      //
                           &grav_props, /* periodic=*/0, dim, r_s_inv);
   }
+  swift_likwid_marker_stop_region("m2l_sym_nonperiodic");
   ticks toc = getticks();
   message("%30s at order %d took %4d %s.", "Symmetric non-periodic M2L",
           SELF_GRAVITY_MULTIPOLE_ORDER,
@@ -215,6 +228,7 @@ int main(int argc, char *argv[]) {
    * Symmetric periodic M2L
    ********/
   tic = getticks();
+  swift_likwid_marker_start_region("m2l_sym_periodic");
   for (int n = 0; n < num_M2L_runs; ++n) {
 
     gravity_M2L_symmetric(&tensors_i[n].pot,     //
@@ -225,6 +239,7 @@ int main(int argc, char *argv[]) {
                           tensors_j[n].CoM,      //
                           &grav_props, /* periodic=*/1, dim, r_s_inv);
   }
+  swift_likwid_marker_stop_region("m2l_sym_periodic");
   toc = getticks();
   message("%30s at order %d took %4d %s.", "Symmetric periodic M2L",
           SELF_GRAVITY_MULTIPOLE_ORDER,
@@ -234,6 +249,7 @@ int main(int argc, char *argv[]) {
    * Non-symmetric non-periodic M2L
    ********/
   tic = getticks();
+  swift_likwid_marker_start_region("m2l_nonsym_nonperiodic");
   for (int n = 0; n < num_M2L_runs; ++n) {
 
     gravity_M2L_nonsym(&tensors_i[n].pot,     //
@@ -242,6 +258,7 @@ int main(int argc, char *argv[]) {
                        tensors_j[n].CoM,      //
                        &grav_props, /* periodic=*/0, dim, r_s_inv);
   }
+  swift_likwid_marker_stop_region("m2l_nonsym_nonperiodic");
   toc = getticks();
   message("%30s at order %d took %4d %s.", "Non-symmetric non-periodic M2L",
           SELF_GRAVITY_MULTIPOLE_ORDER,
@@ -251,6 +268,7 @@ int main(int argc, char *argv[]) {
    * Non-symmetric periodic M2L
    ********/
   tic = getticks();
+  swift_likwid_marker_start_region("m2l_nonsym_periodic");
   for (int n = 0; n < num_M2L_runs; ++n) {
 
     gravity_M2L_nonsym(&tensors_i[n].pot,     //
@@ -259,6 +277,7 @@ int main(int argc, char *argv[]) {
                        tensors_j[n].CoM,      //
                        &grav_props, /* periodic=*/1, dim, r_s_inv);
   }
+  swift_likwid_marker_stop_region("m2l_nonsym_periodic");
   toc = getticks();
   message("%30s at order %d took %4d %s.", "Non-symmetric periodic M2L",
           SELF_GRAVITY_MULTIPOLE_ORDER,
@@ -270,6 +289,7 @@ int main(int argc, char *argv[]) {
    * Non-periodic M2P
    ********/
   tic = getticks();
+  swift_likwid_marker_start_region("m2p_nonperiodic");
   for (int n = 0; n < num_M2P_runs; ++n) {
 
     const int index = n % num_particles;
@@ -288,6 +308,7 @@ int main(int argc, char *argv[]) {
     ci.grav.parts[index].a_grav[1] += l.F_010;
     ci.grav.parts[index].a_grav[2] += l.F_001;
   }
+  swift_likwid_marker_stop_region("m2p_nonperiodic");
   toc = getticks();
   message("%30s at order %d took %4d %s.", "Non-periodic M2P",
           SELF_GRAVITY_MULTIPOLE_ORDER,
@@ -297,6 +318,7 @@ int main(int argc, char *argv[]) {
    * Periodic M2P
    ********/
   tic = getticks();
+  swift_likwid_marker_start_region("m2p_periodic");
   for (int n = 0; n < num_M2P_runs; ++n) {
 
     const int index = n % num_particles;
@@ -315,6 +337,7 @@ int main(int argc, char *argv[]) {
     ci.grav.parts[index].a_grav[1] += l.F_010;
     ci.grav.parts[index].a_grav[2] += l.F_001;
   }
+  swift_likwid_marker_stop_region("m2p_periodic");
   toc = getticks();
   message("%30s at order %d took %4d %s.", "Periodic M2P",
           SELF_GRAVITY_MULTIPOLE_ORDER,
@@ -325,20 +348,26 @@ int main(int argc, char *argv[]) {
   // gravity_field_tensors_print(&cj.grav.multipole->pot);
 
   tic = getticks();
+  swift_likwid_marker_start_region("pp_no_mpole");
   for (int n = 0; n < num_PP_runs; ++n) {
     runner_dopair_grav_pp(&r, &ci, &cj, 1, 0);
   }
+  swift_likwid_marker_stop_region("pp_no_mpole");
   toc = getticks();
   message("%30s at order %d took %4d %s.", "dopair_grav (no mpole)",
           SELF_GRAVITY_MULTIPOLE_ORDER,
           (int)(1e6 * clocks_from_ticks(toc - tic) / num_PP_runs), "ns");
 
   tic = getticks();
+  swift_likwid_marker_start_region("pp_mpole");
   runner_dopair_grav_pp(&r, &ci, &cj, 1, 1);
+  swift_likwid_marker_stop_region("pp_mpole");
   toc = getticks();
   message("%30s at order %d took %4d %s.", "dopair_grav (mpole)",
           SELF_GRAVITY_MULTIPOLE_ORDER,
           (int)(1e6 * clocks_from_ticks(toc - tic) / num_PP_runs), "ns");
+
+  swift_likwid_marker_close();
 
   /* Be clean... */
   gravity_cache_clean(&r.ci_gravity_cache);
