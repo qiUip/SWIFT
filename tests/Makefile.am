@@ -49,7 +49,8 @@ check_PROGRAMS = testGreetings testReading testTimeIntegration testKernelLongGra
 		 test27cellsStars test27cellsStars_subset testCooling testComovingCooling testFeedback \
 		 testHashmap testAtomic testHydroMPIrules testGravitySpeed testMeshGravityRebuildCheck \
 		 testNeutrinoCosmology \
-		 testNeutrinoFermiDirac testLog testTimeline test27GravityCells
+		 testNeutrinoFermiDirac testLog testTimeline test27GravityCells \
+		 test27cells_multi testHydroCellsMulti testCellsMulti testGravityKernels
 
 # Rebuild tests when SWIFT is updated.
 $(check_PROGRAMS): ../src/.libs/libswiftsim.a
@@ -99,6 +100,23 @@ test27cells_SOURCES = test27cells.c
 test27cells_subset_SOURCES = test27cells.c
 
 test27cells_subset_CFLAGS = $(AM_CFLAGS) -DTEST_DOSELF_SUBSET -DTEST_DOPAIR_SUBSET
+
+test27cells_multi_SOURCES = test27cells_multi.c
+
+testHydroCellsMulti_SOURCES = testHydroCellsMulti.c
+
+testCellsMulti_SOURCES = testCellsMulti.c
+
+# The tests using argparse, for the --kernel-name style options.
+testCellsMulti_CFLAGS = $(AM_CFLAGS) -I$(top_srcdir)/argparse
+
+testCellsMulti_LDADD = ../argparse/.libs/libargparse.a
+
+testGravityKernels_SOURCES = testGravityKernels.c
+
+testGravityKernels_CFLAGS = $(AM_CFLAGS) -I$(top_srcdir)/argparse
+
+testGravityKernels_LDADD = ../argparse/.libs/libargparse.a
 
 test27cellsStars_SOURCES = test27cellsStars.c
 

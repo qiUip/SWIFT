@@ -595,6 +595,17 @@ if test "$enable_opt" = "yes" ; then
    AX_CC_MAXOPT
    ac_test_CFLAGS="yes"
 
+   # Override icc/oneapi's guessed -march, same idea as --with-gcc-arch.
+   AC_ARG_WITH([icc-arch],
+      [AS_HELP_STRING([--with-icc-arch=<arch>],
+         [architecture for icc/icx -march @<:@default: native@:>@])],
+      [with_icc_arch="$withval"],
+      [with_icc_arch="native"]
+   )
+   if test "$ax_cv_c_compiler_vendor" = "oneapi" -o "$ax_cv_c_compiler_vendor" = "intel"; then
+      CFLAGS="$CFLAGS -march=$with_icc_arch"
+   fi
+
    # Choose the best flags for the gravity sub-library on this compiler and
    # architecture. Note we use OpenMP as a compiler hints for loop vectorization.
    GRAVITY_CFLAGS="$GRAVITY_CFLAGS $OPENMP_CFLAGS"
